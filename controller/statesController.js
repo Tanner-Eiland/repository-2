@@ -70,8 +70,10 @@ const updateFunfactsInDatabase = async (req, res) => {
 
 const getState = async (req, res) => {
     if(!req.params.code){
-        return res.status(400).json({message: "state code parameter is required"});
-    }
+        return res.status(400).json({message: "state avrebviation parameter is required"});
+    } else if (!(req.params.code.length == 2)) {
+        return res.status(400).json({message: "Invalid state abbreviation parameter"});
+    };
     
     const state = await States.find({ code: req.params.code}).exec();
     if(!state) {
@@ -165,24 +167,30 @@ const getStateFunfact = async (req, res) => {
 
 const getDoesContig = async (req, res) => {
 
-    var parameter;
+    var contig = req.query.contig;
 
-    if (req.query.contig == true) {
-        parameter = { $or: [{code:'AK'}, {code:'HI'}]};
-    } else if (req.query.contig == false) {
-        parameter = {$ne: { $or: [{code:'AK'}, {code:'HI'}]}};
-    } else {
-        parameter = {};
-    };
+    const contigs = await States.find({ $or: [{code:'AK'}, {code:'HI'}]}).exec();
 
-    const state = await States.find(parameter);
+    const nonContig = await States.find( { $and: [{code: {$ne: 'AK'}}, {code: { $ne:'HI'}}]}).exec();
 
+    const state = await States.find().exec();
+
+
+
+    if (contig == 'true') {
+        res.json(contigs);
+    } else if (contig == 'false') {
+        res.json(nonContig);
+    } else if (!contig){
     res.json(state);
+    } else {
+        return res.status(400).json({message: "Incorrect parameters"});
+    };
 
 };
 
 
-// these don't find anything, but compile //
+// these should find something, but don't find anything if the url is too long (ex. localhost/states/contig is too long but localhost/states works just fine)//
 const getContig = async (req, res) => {
     
         const state = await States.find({ $or: [{code:'AK'}, {code:'HI'}]}).exec();
@@ -191,7 +199,7 @@ const getContig = async (req, res) => {
 
 const getNonContig = async (req, res) => {
     
-    const state = await States.find( {$ne: { $or: [{code:'AK'}, {code:'HI'}]}}).exec();
+    const state = await States.find( { $and: [{code: {$ne: 'AK'}}, {code: { $ne:'HI'}}]}).exec();
 res.json(state);
 };
 

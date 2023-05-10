@@ -3,11 +3,9 @@ const router = express();
 const statesController = require("../../controller/statesController");
 
 
-router.route("/")
-.get(statesController.getContig)
-.get(statesController.getAllStates)
+router.route("/").get(statesController.getDoesContig)
 .post(statesController.createStateInDatabase)
-.put(statesController.updateFunfactsInDatabase);
+.put(statesController.updateFunfactsInDatabase);;
 
 router.route("/:code")
 .get(statesController.getState);
@@ -27,9 +25,8 @@ router.route("/:code/admission")
 router.route("/:code/funfact")
 .get(statesController.getStateFunfact);
 
-router.route("/contig")
-.get(statesController.getContig)
-.get(statesController.getAllStates);
+
+
 
 
 
